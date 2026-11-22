@@ -11,10 +11,11 @@ package:
 source:
   url: https://download.kde.org/stable/frameworks/${{ major_minor }}/extra-cmake-modules-${{ version }}.tar.xz
   sha256: 305f4e2b82eb073be6ac3e50ace85578b3c0c409be262ccc51d445449e3d9312
+  patches:
+    - patches/windows-test-fixes.patch
 
 build:
   number: 0
-  skip: win
 
 requirements:
   build:
@@ -23,6 +24,8 @@ requirements:
     - ${{ compiler('cxx') }}
     - make
     - cmake >=3.5,<4
+    - if: win
+      then: ninja
   host:
     - cmake >=3.5,<4
     - qt-main
@@ -32,8 +35,16 @@ requirements:
     - cmake >=3.5,<4
 
 tests:
-  - script:
-      - test -f $PREFIX/share/ECM/cmake/ECMConfig.cmake
+  - if: unix
+    then:
+      package_contents:
+        files:
+          - share/ECM/cmake/ECMConfig.cmake
+  - if: win
+    then:
+      package_contents:
+        files:
+          - Library/share/ECM/cmake/ECMConfig.cmake
 
 about:
   license: BSD-3-Clause
